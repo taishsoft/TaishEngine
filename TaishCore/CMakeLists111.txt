@@ -1,0 +1,9 @@
+include_directories(${PROJECT_SOURCE_DIR}/Dependencies/GLFW/include)
+
+link_libraries("libglfw.3.dylib")
+
+if(WIN32)
+elseif(APPLE)
+	link_directories(${PROJECT_SOURCE_DIR}/Dependencies/GLFW/lib-universal)
+	MESSAGE( STATUS "message = ${OPENGL_INCLUDE_DIR}.")
+endif()

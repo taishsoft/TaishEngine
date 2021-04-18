@@ -11,29 +11,36 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O2 -finline-limit=1000 -DNDEBUG " )
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/build/bin)
 set(LIBRARY_OUTPUT_PATH    ${PROJECT_SOURCE_DIR}/build/lib)
 
-# 添加项目的构建目标，一个可执行程序，叫：${PROJECT_NAME}
-add_executable(${PROJECT_NAME} ${SRC_LIST})
+add_subdirectory(${PROJECT_SOURCE_DIR}/glfw)
 
-# 让项目的可执行程序red链接glfw库
-target_link_libraries(${PROJECT_NAME} glfw)
-
-#添加TaishCore到头文件搜索路径，以后自己编写的头文件如果放在TaishCore下的话，就能被编译器搜索到。
+#添加TaishCore到头文件搜索路径，以后自己编写的头文件如果放在TaishCore下的话，就能被编译器搜索到
 include_directories(${PROJECT_SOURCE_DIR}/TaishCore)
-include_directories(${PROJECT_SOURCE_DIR}/Dependencies/GLFW/include)
+
+MESSAGE( STATUS ${PROJECT_SOURCE_DIR})
+MESSAGE( STATUS "#=------#")
 
 # 添加要编译的cpp源代码，先只要一个window.cpp
-set(SRC_LIST ${PROJECT_SOURCE_DIR}/TaishCore/src/graphics/window.cpp)
+set(SRC_LIST ${PROJECT_SOURCE_DIR}/TaishCore/window.cpp)
+#set(SRC_LIST ${PROJECT_SOURCE_DIR}/TaishCore/main.cpp)
 
 # 添加项目的构建目标，一个可执行程序，叫：${PROJECT_NAME}
 add_executable(${PROJECT_NAME} ${SRC_LIST})
 
-# 让项目的可执行程序red链接glfw库
+# 让项目的可执行程序链接glfw库
 target_link_libraries(${PROJECT_NAME} glfw)
-add_subdirectory(TaishCore)
 
-if(WINDOWS)
-elseif(MACOS)
-	link_directories("${PROJECT_SOURCE_DIR}/Dependencies/GLFW/lib-universal")
-	MESSAGE( STATUS "message = ${OPENGL_INCLUDE_DIR}.")
-endif()
+#add_subdirectory(TaishCore)
+
+# 让CMake去系统搜索OpenGL库，找不到就报错(REQUIRED).
+# 找到了之后就会有两个变量可用：OPENGL_INCLUDE_DIR 和 OPENGL_gl_LIBRARY
+find_package(OpenGL REQUIRED)
+MESSAGE( STATUS "2#------#")
+#MESSAGE( STATUS ${OPENGL_INCLUDE_DIR})
+#MESSAGE( STATUS ${OPENGL_gl_LIBRARY})
+
+# 添加OpenGL头文件包含目录
+target_include_directories(${PROJECT_NAME} PUBLIC ${OPENGL_INCLUDE_DIR})
+
+# 让项目的可执行程序链接系统OpenGL库
+target_link_libraries(${PROJECT_NAME} ${OPENGL_gl_LIBRARY})
 
